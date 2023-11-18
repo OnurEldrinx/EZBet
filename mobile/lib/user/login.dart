@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/user/register.dart';
 import 'dart:convert';
 import 'package:mobile/games/games.dart';
+import 'package:mobile/settings.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,9 +15,11 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   void login() async {
-    const String scheme = 'http';
-    const String ip = '192.168.1.101';
-    const int port = 3000;
+
+    const String scheme = Settings.scheme;
+    const String ip = Settings.ip;
+    const int port = Settings.port;
+
 
     const url = '$scheme://$ip:$port/api/login';
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/user/login.dart';
 import 'dart:convert';
+import 'package:mobile/settings.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -13,9 +14,9 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   void register() async {
-    const String scheme = 'http';
-    const String ip = '192.168.1.101';
-    const int port = 3000;
+    const String scheme = Settings.scheme;
+    const String ip = Settings.ip;
+    const int port = Settings.port;
 
     const url = '$scheme://$ip:$port/api/register';
 

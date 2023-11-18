@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:mobile/settings.dart';
+import 'package:mobile/game.dart';
 class Game {
   final int matchId;
   final String date;
@@ -41,9 +42,10 @@ class Game {
 }
 
 Future<List<Game>> fetchGames() async {
-  const String scheme = 'http';
-  const String ip = '192.168.1.101';
-  const int port = 3000;
+
+  const String scheme = Settings.scheme;
+  const String ip = Settings.ip;
+  const int port = Settings.port;
 
   const url = '$scheme://$ip:$port/api/games';
   final response = await http.get(Uri.parse(url));
@@ -80,9 +82,37 @@ Future<List<Game>> fetchGames() async {
 }
 
 class GamesPage extends StatelessWidget {
+
+  List<Map<String, dynamic>> footballGames = [
+    /*{
+      'leagueName': 'Premier League',
+      'gameTime': '15:00',
+      'team1': 'Team A',
+      'team2': 'Team B',
+      'odds': [
+        {'numeric': '2.5', 'type': 'MS 1'},
+        {'numeric': '1.8', 'type': 'MS 0'},
+        {'numeric': '3.0', 'type': 'MS 2'},
+        {'numeric': '2.2', 'type': 'Alt 2.5'},
+        {'numeric': '1.7', 'type': 'Üst 2.5'},
+      ],
+    },*/
+    // Add more football game data as needed
+  ];
+
+  void testButton(){
+
+    print("click");
+
+  }
+
+  double w = 60;
+  double h = 40;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(0, 154, 58, 1),
       appBar: AppBar(
         title: const Text('Games'),
       ),
@@ -98,12 +128,67 @@ class GamesPage extends StatelessWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
+
             return ListView.builder(
+              padding: EdgeInsetsDirectional.symmetric(horizontal: 5,vertical: 5),
               itemCount: snapshot.data!.length,
               itemBuilder: (BuildContext context, int index) {
-                return ListTile(
+
+                footballGames.add({
+                  'leagueName': snapshot.data![index].league,
+                  'gameTime': snapshot.data![index].time,
+                  'team1': snapshot.data![index].team1,
+                  'team2': snapshot.data![index].team2,
+                  'odds': [
+                    {'numeric': snapshot.data![index].ms1.toString(), 'type': 'MS 1'},
+                    {'numeric': snapshot.data![index].ms0.toString(), 'type': 'MS 0'},
+                    {'numeric': snapshot.data![index].ms2.toString(), 'type': 'MS 2'},
+                    {'numeric': snapshot.data![index].alt25.toString(), 'type': 'Alt 2.5'},
+                    {'numeric': snapshot.data![index].ust25.toString(), 'type': 'Üst 2.5'},
+                  ],
+                });
+
+                return FootballGameItem(
+                  leagueName: footballGames[index]['leagueName'],
+                  gameTime: footballGames[index]['gameTime'],
+                  team1: footballGames[index]['team1'],
+                  team2: footballGames[index]['team2'],
+                  odds: List<Map<String, String>>.from(footballGames[index]['odds']),
+
+
+                );
+
+                /*return Card(
+                  elevation: 5,
+                  margin: EdgeInsets.symmetric(vertical: 25,horizontal: 5),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                      title: Text('${snapshot.data![index].teams}'),
+                      subtitle: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            /*ElevatedButton(
+                                onPressed: onPressed,
+                                child: Text('${snapshot.data![index].ms1}'),
+
+                            ),
+                            ElevatedButton(onPressed: onPressed, child: Text('${snapshot.data![index].ms0}')),
+                            ElevatedButton(onPressed: onPressed, child: Text('${snapshot.data![index].ms2}')),
+                            ElevatedButton(onPressed: onPressed, child: Text('${snapshot.data![index].ust25}')),
+                            ElevatedButton(onPressed: onPressed, child: Text('${snapshot.data![index].alt25}'))*/
+                          ]
+
+                      ),
+                      trailing: null,
+                      isThreeLine: false,
+                    )
+
+                );*/
+                /*return ListTile(
                   title: Text(
-                    '${snapshot.data![index].team1} vs ${snapshot.data![index].team2}',
+                    //'${snapshot.data![index].team1} vs ${snapshot.data![index].team2}',
+                    snapshot.data![index].league
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +200,7 @@ class GamesPage extends StatelessWidget {
                       Text('Ust25: ${snapshot.data![index].ust25}'),
                     ],
                   ),
-                );
+                );*/
               },
             );
           }
