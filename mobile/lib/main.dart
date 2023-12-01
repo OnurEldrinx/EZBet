@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'user/login.dart';
-//import 'user/register.dart';
 import 'games/games.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -20,6 +19,7 @@ class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: GamesPage(),
     );
   }
