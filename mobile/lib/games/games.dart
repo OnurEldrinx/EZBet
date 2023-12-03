@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mobile/settings.dart';
 import 'package:mobile/games/game.dart';
+import 'myCoupon.dart';
 
 class Game {
   final int matchId;
@@ -100,47 +101,11 @@ class GamesPageWidget extends State<GamesPage> {
     super.initState();
     footballGames = [];
     gamesStackWidget = gamesStack(context);
-    myCouponWidget = myCoupon(context);
+    myCouponWidget = MyCouponWidget();
     savedCouponsWidget = savedCoupons(context);
   }
 
-  void toggleCouponVisibility() {
-    setState(() {
-      isCouponVisible = !isCouponVisible;
-    });
-    calculateOdds();
-  }
-
-  Widget couponOverlay(BuildContext context) {
-    return Positioned(
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: GestureDetector(
-        onTap: toggleCouponVisibility,
-        child: Container(
-          color: Colors.black.withOpacity(0.5),
-          alignment: Alignment.center,
-          child: coupon(context),
-        ),
-      ),
-    );
-  }
-
-  Widget coupon(BuildContext context) {
-    return Container(
-      height: 500,
-      width: 500,
-      color: Color.fromRGBO(0, 153, 59, 1.0),
-      child: Center(
-        child: Text("display bet coupons here"),
-      ),
-    );
-  }
-
-  Widget gamesStack (BuildContext context){
-
+  Widget gamesStack(BuildContext context) {
     return Stack(children: [
       FutureBuilder<List<Game>>(
         future: fetchGames(),
@@ -187,14 +152,12 @@ class GamesPageWidget extends State<GamesPage> {
                             'isClicked': false
                           },
                           {
-                            'numeric':
-                            snapshot.data![index].alt25.toString(),
+                            'numeric': snapshot.data![index].alt25.toString(),
                             'type': 'Alt 2.5',
                             'isClicked': false
                           },
                           {
-                            'numeric':
-                            snapshot.data![index].ust25.toString(),
+                            'numeric': snapshot.data![index].ust25.toString(),
                             'type': 'Üst 2.5',
                             'isClicked': false
                           },
@@ -219,21 +182,14 @@ class GamesPageWidget extends State<GamesPage> {
           }
         },
       ),
-      if (isCouponVisible) couponOverlay(context),
-    ]
-    );
-
+    ]);
   }
 
-  Widget myCoupon(BuildContext context){
-    return Placeholder(child: Center(child: Text("Total Odd: $totalOdd")));
-  }
-
-  Widget savedCoupons(BuildContext context){
+  Widget savedCoupons(BuildContext context) {
     return Placeholder(child: Center(child: Text("Saved Coupons")));
   }
 
-  void calculateOdds() {
+  double calculateOdds() {
     Map<int, List<String>> clickedOddsMap =
         FootballGameItemState.clickedOddsMap;
 
@@ -246,39 +202,30 @@ class GamesPageWidget extends State<GamesPage> {
     });
     totalOdd = result;
     print(' Result: $totalOdd');
-
-    FootballGameItemState.clickedGames.forEach((element) {print(element.toString());});
-
-  }
-
-  void navigateToCoupon(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => coupon(context)),
-    );
+    return totalOdd;
   }
 
   //Bottom Nav Bar Implementation Start
   int _selectedIndex = 0;
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static List<Widget> _widgetOptions = <Widget>[
     myCouponWidget,
     gamesStackWidget,
     savedCouponsWidget,
   ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      calculateOdds();
     });
   }
-  //Bottom Nav Bar Implementation End
 
+  //Bottom Nav Bar Implementation End
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: BottomNavigationBar(enableFeedback: true,
+        bottomNavigationBar: BottomNavigationBar(
+          enableFeedback: true,
           type: BottomNavigationBarType.fixed,
           unselectedItemColor: Colors.white,
           selectedItemColor: Colors.amber,
@@ -287,9 +234,18 @@ class GamesPageWidget extends State<GamesPage> {
           iconSize: 40,
           backgroundColor: Color(0xFF191233),
           items: [
-              BottomNavigationBarItem(activeIcon: Icon(Icons.checklist),icon: Icon(Icons.checklist_outlined,color: Colors.white),label: "My Coupon"),
-              BottomNavigationBarItem(activeIcon: Icon(Icons.calendar_today),icon: Icon(Icons.calendar_today_outlined,color: Colors.white),label: "Games"),
-              BottomNavigationBarItem(activeIcon: Icon(Icons.bookmark),icon: Icon(Icons.bookmark_border,color: Colors.white),label: "Saved Coupons")
+            BottomNavigationBarItem(
+                activeIcon: Icon(Icons.checklist),
+                icon: Icon(Icons.checklist_outlined, color: Colors.white),
+                label: "My Coupon"),
+            BottomNavigationBarItem(
+                activeIcon: Icon(Icons.calendar_today),
+                icon: Icon(Icons.calendar_today_outlined, color: Colors.white),
+                label: "Games"),
+            BottomNavigationBarItem(
+                activeIcon: Icon(Icons.bookmark),
+                icon: Icon(Icons.bookmark_border, color: Colors.white),
+                label: "Saved Coupons")
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -299,16 +255,6 @@ class GamesPageWidget extends State<GamesPage> {
           backgroundColor: Color(0xFF191233),
           elevation: 2,
           title: const Text('EZBet'),
-          actions: [
-            /*IconButton(
-              icon: Icon(Icons.circle),
-              onPressed: toggleCouponVisibility,
-            ),
-            IconButton(
-              icon: Icon(Icons.turned_in),
-              onPressed: () {},
-            ),*/
-          ],
         ),
         body: _widgetOptions.elementAt(_selectedIndex));
   }

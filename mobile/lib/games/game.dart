@@ -29,8 +29,7 @@ class FootballGameItem extends StatefulWidget {
 class FootballGameItemState extends State<FootballGameItem> {
   static Map<String, int?> lastClickedOddIndexMap = {};
   static Map<int, List<String>> clickedOddsMap = {};
-  static List<FootballGameItem> clickedGames = [];
-
+  static Map<int, FootballGameItem> clickedGames = {};
   Widget build(BuildContext context) {
     return Card(
       shadowColor: Colors.transparent,
@@ -105,8 +104,10 @@ class FootballGameItemState extends State<FootballGameItem> {
                                         .odds[lastClickedIndex]['numeric']);
                                   }
 
-                                  bool isClicked = !(odd['isClicked'] ?? false);
-                                  odd['isClicked'] = isClicked;
+                                  bool isClicked = !(widget.odds[index]
+                                          ['isClicked'] ??
+                                      false);
+                                  widget.odds[index]['isClicked'] = isClicked;
 
                                   lastClickedOddIndexMap[matchId.toString()] =
                                       isClicked ? index : null;
@@ -114,15 +115,16 @@ class FootballGameItemState extends State<FootballGameItem> {
                                   if (isClicked) {
                                     clickedOddsMap[matchId]
                                         ?.add(widget.odds[index]['numeric']);
-                                    clickedGames.add(widget);
+
+                                    clickedGames[matchId] = widget;
                                   } else {
                                     clickedOddsMap[matchId]
                                         ?.remove(widget.odds[index]['numeric']);
-                                    clickedGames.remove(widget);
+
+                                    clickedGames.remove(matchId);
                                   }
 
-                                  /*   print(
-                                      'Updated Clicked Odds Map: $clickedOddsMap'); */
+                                  print(clickedGames);
                                 });
                               },
                               style: ElevatedButton.styleFrom(
