@@ -87,8 +87,22 @@ class GamesPage extends StatefulWidget {
 }
 
 class GamesPageWidget extends State<GamesPage> {
-  List<Map<String, dynamic>> footballGames = [];
+  static late List<Map<String, dynamic>> footballGames;
   bool isCouponVisible = false;
+  static late var gamesStackWidget;
+  static late var myCouponWidget;
+  static late var savedCouponsWidget;
+
+  static double totalOdd = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    footballGames = [];
+    gamesStackWidget = gamesStack(context);
+    myCouponWidget = myCoupon(context);
+    savedCouponsWidget = savedCoupons(context);
+  }
 
   void toggleCouponVisibility() {
     setState(() {
@@ -118,11 +132,105 @@ class GamesPageWidget extends State<GamesPage> {
     return Container(
       height: 500,
       width: 500,
-      color: Color.fromRGBO(0, 255, 0, 1),
+      color: Color.fromRGBO(0, 153, 59, 1.0),
       child: Center(
         child: Text("display bet coupons here"),
       ),
     );
+  }
+
+  Widget gamesStack (BuildContext context){
+
+    return Stack(children: [
+      FutureBuilder<List<Game>>(
+        future: fetchGames(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsetsDirectional.symmetric(
+                      horizontal: 5,
+                      vertical: 5,
+                    ),
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      footballGames.add({
+                        'matchId': snapshot.data![index].matchId,
+                        'leagueName': snapshot.data![index].league,
+                        'gameTime': snapshot.data![index].time,
+                        'team1': snapshot.data![index].team1,
+                        'team2': snapshot.data![index].team2,
+                        'odds': <Map<String, Object>>[
+                          {
+                            'numeric': snapshot.data![index].ms1.toString(),
+                            'type': 'MS 1',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].ms0.toString(),
+                            'type': 'MS 0',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].ms2.toString(),
+                            'type': 'MS 2',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric':
+                            snapshot.data![index].alt25.toString(),
+                            'type': 'Alt 2.5',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric':
+                            snapshot.data![index].ust25.toString(),
+                            'type': 'Üst 2.5',
+                            'isClicked': false
+                          },
+                        ],
+                      });
+
+                      return FootballGameItem(
+                        matchID: footballGames[index]['matchId'],
+                        leagueName: footballGames[index]['leagueName'],
+                        gameTime: footballGames[index]['gameTime'],
+                        team1: footballGames[index]['team1'],
+                        team2: footballGames[index]['team2'],
+                        odds: List<Map<String, Object>>.from(
+                          footballGames[index]['odds'],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+      if (isCouponVisible) couponOverlay(context),
+    ]
+    );
+
+  }
+
+  Widget myCoupon(BuildContext context){
+    return Placeholder(child: Center(child: Text("Total Odd: $totalOdd")));
+  }
+
+  Widget savedCoupons(BuildContext context){
+    return Placeholder(child: Center(child: Text("Saved Coupons")));
   }
 
   void calculateOdds() {
@@ -136,8 +244,11 @@ class GamesPageWidget extends State<GamesPage> {
         result *= double.tryParse(value) ?? 1.0;
       });
     });
+    totalOdd = result;
+    print(' Result: $totalOdd');
 
-    print(' Result: $result');
+    FootballGameItemState.clickedGames.forEach((element) {print(element.toString());});
+
   }
 
   void navigateToCoupon(BuildContext context) {
@@ -146,105 +257,59 @@ class GamesPageWidget extends State<GamesPage> {
       MaterialPageRoute(builder: (context) => coupon(context)),
     );
   }
-/*   double w = 60;
-  double h = 40; */
+
+  //Bottom Nav Bar Implementation Start
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static List<Widget> _widgetOptions = <Widget>[
+    myCouponWidget,
+    gamesStackWidget,
+    savedCouponsWidget,
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      calculateOdds();
+    });
+  }
+  //Bottom Nav Bar Implementation End
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomNavigationBar: BottomNavigationBar(enableFeedback: true,
+          type: BottomNavigationBarType.fixed,
+          unselectedItemColor: Colors.white,
+          selectedItemColor: Colors.amber,
+          showSelectedLabels: true,
+          showUnselectedLabels: false,
+          iconSize: 40,
+          backgroundColor: Color(0xFF191233),
+          items: [
+              BottomNavigationBarItem(activeIcon: Icon(Icons.checklist),icon: Icon(Icons.checklist_outlined,color: Colors.white),label: "My Coupon"),
+              BottomNavigationBarItem(activeIcon: Icon(Icons.calendar_today),icon: Icon(Icons.calendar_today_outlined,color: Colors.white),label: "Games"),
+              BottomNavigationBarItem(activeIcon: Icon(Icons.bookmark),icon: Icon(Icons.bookmark_border,color: Colors.white),label: "Saved Coupons")
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
         backgroundColor: Color.fromRGBO(0, 154, 58, 1),
         appBar: AppBar(
-          title: const Text('Games'),
+          backgroundColor: Color(0xFF191233),
+          elevation: 2,
+          title: const Text('EZBet'),
           actions: [
-            IconButton(
+            /*IconButton(
               icon: Icon(Icons.circle),
               onPressed: toggleCouponVisibility,
             ),
             IconButton(
               icon: Icon(Icons.turned_in),
               onPressed: () {},
-            ),
+            ),*/
           ],
         ),
-        body: Stack(children: [
-          FutureBuilder<List<Game>>(
-            future: fetchGames(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              } else {
-                return Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsetsDirectional.symmetric(
-                          horizontal: 5,
-                          vertical: 5,
-                        ),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          footballGames.add({
-                            'matchId': snapshot.data![index].matchId,
-                            'leagueName': snapshot.data![index].league,
-                            'gameTime': snapshot.data![index].time,
-                            'team1': snapshot.data![index].team1,
-                            'team2': snapshot.data![index].team2,
-                            'odds': <Map<String, Object>>[
-                              {
-                                'numeric': snapshot.data![index].ms1.toString(),
-                                'type': 'MS 1',
-                                'isClicked': false
-                              },
-                              {
-                                'numeric': snapshot.data![index].ms0.toString(),
-                                'type': 'MS 0',
-                                'isClicked': false
-                              },
-                              {
-                                'numeric': snapshot.data![index].ms2.toString(),
-                                'type': 'MS 2',
-                                'isClicked': false
-                              },
-                              {
-                                'numeric':
-                                    snapshot.data![index].alt25.toString(),
-                                'type': 'Alt 2.5',
-                                'isClicked': false
-                              },
-                              {
-                                'numeric':
-                                    snapshot.data![index].ust25.toString(),
-                                'type': 'Üst 2.5',
-                                'isClicked': false
-                              },
-                            ],
-                          });
-
-                          return FootballGameItem(
-                            matchID: footballGames[index]['matchId'],
-                            leagueName: footballGames[index]['leagueName'],
-                            gameTime: footballGames[index]['gameTime'],
-                            team1: footballGames[index]['team1'],
-                            team2: footballGames[index]['team2'],
-                            odds: List<Map<String, Object>>.from(
-                              footballGames[index]['odds'],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }
-            },
-          ),
-          if (isCouponVisible) couponOverlay(context),
-        ]));
+        body: _widgetOptions.elementAt(_selectedIndex));
   }
 }

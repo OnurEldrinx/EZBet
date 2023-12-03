@@ -18,12 +18,18 @@ class FootballGameItem extends StatefulWidget {
   });
 
   @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return "$matchID - $leagueName - $gameTime - $team1 vs $team2";
+  }
+
+  @override
   FootballGameItemState createState() => FootballGameItemState();
 }
 
 class FootballGameItemState extends State<FootballGameItem> {
   static Map<String, int?> lastClickedOddIndexMap = {};
   static Map<int, List<String>> clickedOddsMap = {};
+  static List<FootballGameItem> clickedGames = [];
 
   Widget build(BuildContext context) {
     return Card(
@@ -108,9 +114,11 @@ class FootballGameItemState extends State<FootballGameItem> {
                                   if (isClicked) {
                                     clickedOddsMap[matchId]
                                         ?.add(widget.odds[index]['numeric']);
+                                    clickedGames.add(widget);
                                   } else {
                                     clickedOddsMap[matchId]
                                         ?.remove(widget.odds[index]['numeric']);
+                                    clickedGames.remove(widget);
                                   }
 
                                   /*   print(
