@@ -59,10 +59,10 @@ class RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register'),
-        backgroundColor: Colors.black,
+        backgroundColor: Color.fromRGBO(0, 154, 58, 1),
       ),
       body: Container(
-        color: Colors.black,
+        color: Color.fromRGBO(0, 154, 58, 1),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +110,9 @@ class RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: register,
-                child: const Text('Register'),
+                child: const Text(
+                  'Register',
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -124,7 +126,7 @@ class RegisterPageState extends State<RegisterPage> {
                     onTap: navigateToLogin,
                     child: const Text(
                       ' Sign in',
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Colors.amber),
                     ),
                   ),
                 ],

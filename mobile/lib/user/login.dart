@@ -15,11 +15,9 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   void login() async {
-
     const String scheme = Settings.scheme;
     const String ip = Settings.ip;
     const int port = Settings.port;
-
 
     const url = '$scheme://$ip:$port/api/login';
 
@@ -69,10 +67,10 @@ class LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
-        backgroundColor: Colors.black,
+        backgroundColor: Color.fromRGBO(0, 154, 58, 1),
       ),
       body: Container(
-        color: Colors.black,
+        color: Color.fromRGBO(0, 154, 58, 1),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +132,7 @@ class LoginPageState extends State<LoginPage> {
                     onTap: navigateToRegister,
                     child: const Text(
                       ' Register',
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: Colors.amber),
                     ),
                   ),
                 ],
