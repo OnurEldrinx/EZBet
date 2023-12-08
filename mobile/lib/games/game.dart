@@ -102,6 +102,8 @@ class FootballGameItemState extends State<FootballGameItem> {
                                     // aynı matchid için eski seçilen odd'u kaldırıyor
                                     clickedOddsMap[matchId]?.remove(widget
                                         .odds[lastClickedIndex]['numeric']);
+                                    clickedOddsMap[matchId]?.remove(
+                                        widget.odds[lastClickedIndex]["type"]);
                                   }
 
                                   bool isClicked = !(widget.odds[index]
@@ -115,16 +117,20 @@ class FootballGameItemState extends State<FootballGameItem> {
                                   if (isClicked) {
                                     clickedOddsMap[matchId]
                                         ?.add(widget.odds[index]['numeric']);
+                                    clickedOddsMap[matchId]
+                                        ?.add(widget.odds[index]["type"]);
 
                                     clickedGames[matchId] = widget;
                                   } else {
                                     clickedOddsMap[matchId]
                                         ?.remove(widget.odds[index]['numeric']);
+                                    clickedOddsMap[matchId]
+                                        ?.remove(widget.odds[index]["type"]);
 
                                     clickedGames.remove(matchId);
                                   }
 
-                                  print(clickedGames);
+                                  //   print(clickedGames);
                                 });
                               },
                               style: ElevatedButton.styleFrom(

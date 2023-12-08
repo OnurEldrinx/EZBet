@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:mobile/settings.dart';
 import 'package:mobile/games/game.dart';
 import 'myCoupon.dart';
+import 'savedCoupons.dart';
 
 class Game {
   final int matchId;
@@ -102,7 +103,7 @@ class GamesPageWidget extends State<GamesPage> {
     footballGames = [];
     gamesStackWidget = gamesStack(context);
     myCouponWidget = MyCouponWidget();
-    savedCouponsWidget = savedCoupons(context);
+    savedCouponsWidget = SavedCoupons();
   }
 
   Widget gamesStack(BuildContext context) {
@@ -185,9 +186,9 @@ class GamesPageWidget extends State<GamesPage> {
     ]);
   }
 
-  Widget savedCoupons(BuildContext context) {
+/*   Widget savedCoupons(BuildContext context) {
     return Placeholder(child: Center(child: Text("Saved Coupons")));
-  }
+  } */
 
   double calculateOdds() {
     Map<int, List<String>> clickedOddsMap =
@@ -201,7 +202,7 @@ class GamesPageWidget extends State<GamesPage> {
       });
     });
     totalOdd = result;
-    print(' Result: $totalOdd');
+    //print(' Result: $totalOdd');
     return totalOdd;
   }
 
