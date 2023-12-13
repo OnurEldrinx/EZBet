@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/user/login.dart';
 import 'game.dart';
 import 'games.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mobile/settings.dart';
 
 class MyCouponWidget extends StatefulWidget {
+  final String loggedInUsername;
+  MyCouponWidget({Key? key, required this.loggedInUsername}) : super(key: key);
   @override
   MyCouponWidgetState createState() => MyCouponWidgetState();
 }
 
 class MyCouponWidgetState extends State<MyCouponWidget> {
+  List<FootballGameItem> clickedGamesList = [];
+
   double totalOddUpdated = 1.0;
   int betAmount = 0;
   double winning = 0.0;
@@ -27,7 +35,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
           child: ListView.builder(
             itemCount: FootballGameItemState.clickedGames.length,
             itemBuilder: (context, index) {
-              List<FootballGameItem> clickedGamesList =
+              clickedGamesList =
                   FootballGameItemState.clickedGames.values.toList();
               FootballGameItem game = clickedGamesList[index];
               String odd =
@@ -153,9 +161,33 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(width: 60,height: 60,child: OutlinedButton(onPressed: (){}, child: Icon(Icons.delete_sharp,size: 30),style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),foregroundColor: Colors.red,backgroundColor: Colors.white,alignment:Alignment(0, 0)))),
+                      SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: OutlinedButton(
+                              onPressed: () {},
+                              child: Icon(Icons.delete_sharp, size: 30),
+                              style: OutlinedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  foregroundColor: Colors.red,
+                                  backgroundColor: Colors.white,
+                                  alignment: Alignment(0, 0)))),
                       SizedBox(width: 10),
-                      SizedBox(width: 60,height: 60,child: OutlinedButton(onPressed: (){}, child: Icon(Icons.save,size: 30),style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),foregroundColor: Colors.black,backgroundColor: Colors.white,alignment:Alignment(0, 0)))),
+                      SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: OutlinedButton(
+                              onPressed: () {
+                                sendCouponsToBackend(clickedGamesList);
+                              },
+                              child: Icon(Icons.save, size: 30),
+                              style: OutlinedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Colors.white,
+                                  alignment: Alignment(0, 0)))),
                     ],
                   )
                 ],
@@ -168,7 +200,44 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
     );
   }
 
-  void saveCoupons() {}
+  Map<String, dynamic> createPayload(
+      String username, List<FootballGameItem> games) {
+    List<Map<String, dynamic>> gamesJson =
+        games.map((game) => game.toJson()).toList();
+    return {
+      'username': username,
+      'games': gamesJson,
+    };
+  }
+
+  void sendCouponsToBackend(List<FootballGameItem> games) async {
+    var payload = createPayload(widget.loggedInUsername, games);
+    const String scheme = Settings.scheme;
+    const String ip = Settings.ip;
+    const int port = Settings.port;
+
+    const url = '$scheme://$ip:$port/api/savedCoupons';
+    final Map<String, String> requestHeaders = {
+      'Content-type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: jsonEncode(payload),
+        headers: requestHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        print("data send");
+      } else {
+        print("error");
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
 
   void updateTotalOdd() {
     setState(() {

@@ -84,6 +84,9 @@ Future<List<Game>> fetchGames() async {
 }
 
 class GamesPage extends StatefulWidget {
+  final String loggedInUsername;
+  GamesPage({Key? key, required this.loggedInUsername}) : super(key: key);
+
   @override
   GamesPageWidget createState() => GamesPageWidget();
 }
@@ -102,7 +105,9 @@ class GamesPageWidget extends State<GamesPage> {
     super.initState();
     footballGames = [];
     gamesStackWidget = gamesStack(context);
-    myCouponWidget = MyCouponWidget();
+    myCouponWidget = MyCouponWidget(
+      loggedInUsername: widget.loggedInUsername,
+    );
     savedCouponsWidget = SavedCoupons();
   }
 

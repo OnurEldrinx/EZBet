@@ -120,6 +120,28 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+
+// save coupons to db
+app.post('/api/savedCoupons', async (req, res) => {
+  console.log("Reveived data: ", req.body);
+  try {
+    const data = req.body; 
+
+    client = await MongoClient.connect(uri);
+    const db = client.db(dbName);
+    const savedCouponsCollection = db.collection('savedCoupons');
+
+    const result = await savedCouponsCollection.insertOne(data);
+
+    res.status(200).json({ message: 'Data saved ', result });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: '  Error' });
+  } finally {
+    client && client.close();
+  }
+});
+
     
 
 

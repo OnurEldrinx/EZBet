@@ -13,6 +13,7 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String loggedInUsername = "";
 
   void login() async {
     const String scheme = Settings.scheme;
@@ -39,6 +40,8 @@ class LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
+        loggedInUsername = _usernameController.text;
+        //  print(loggedInUsername);
         navigateToGames();
       } else {
         // todo: when register is failed do something here
@@ -51,7 +54,9 @@ class LoginPageState extends State<LoginPage> {
   void navigateToGames() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => GamesPage()),
+      MaterialPageRoute(
+        builder: (context) => GamesPage(loggedInUsername: loggedInUsername),
+      ),
     );
   }
 

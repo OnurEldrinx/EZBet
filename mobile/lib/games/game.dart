@@ -16,6 +16,16 @@ class FootballGameItem extends StatefulWidget {
     required this.team2,
     required this.odds,
   });
+  Map<String, dynamic> toJson() {
+    return {
+      'matchID': matchID,
+      'leagueName': leagueName,
+      'gameTime': gameTime,
+      'team1': team1,
+      'team2': team2,
+      'odds': odds,
+    };
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -102,8 +112,8 @@ class FootballGameItemState extends State<FootballGameItem> {
                                     // aynı matchid için eski seçilen odd'u kaldırıyor
                                     clickedOddsMap[matchId]?.remove(widget
                                         .odds[lastClickedIndex]['numeric']);
-                                    clickedOddsMap[matchId]?.remove(widget
-                                        .odds[lastClickedIndex]['type']);
+                                    clickedOddsMap[matchId]?.remove(
+                                        widget.odds[lastClickedIndex]['type']);
                                   }
 
                                   bool isClicked = !(widget.odds[index]
