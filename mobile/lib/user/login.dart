@@ -71,6 +71,7 @@ class LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Login'),
         backgroundColor: Color.fromRGBO(0, 154, 58, 1),
       ),
