@@ -28,6 +28,11 @@ class FootballGameItem extends StatefulWidget {
   }
 
   @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return "$matchID - $leagueName - $gameTime - $team1 vs $team2";
+  }
+
+  @override
   FootballGameItemState createState() => FootballGameItemState();
 }
 

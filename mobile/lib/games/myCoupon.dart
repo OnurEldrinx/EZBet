@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/user/login.dart';
 import 'game.dart';
 import 'games.dart';
 import 'package:http/http.dart' as http;
@@ -164,9 +165,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                           width: 60,
                           height: 60,
                           child: OutlinedButton(
-                              onPressed: () {
-                                deleteOnClick();
-                              },
+                              onPressed: () {},
                               child: Icon(Icons.delete_sharp, size: 30),
                               style: OutlinedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
@@ -201,27 +200,18 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
     );
   }
 
-  void deleteOnClick() {
-    setState(() {
-      FootballGameItemState.clickedGames.clear();
-    });
-  }
-
-  Map<String, dynamic> createPayload(String username,
-      List<FootballGameItem> games, int betAmount, double winning) {
+  Map<String, dynamic> createPayload(
+      String username, List<FootballGameItem> games) {
     List<Map<String, dynamic>> gamesJson =
         games.map((game) => game.toJson()).toList();
     return {
       'username': username,
       'games': gamesJson,
-      'betAmount': betAmount,
-      'winning': winning
     };
   }
 
   void sendCouponsToBackend(List<FootballGameItem> games) async {
-    var payload =
-        createPayload(widget.loggedInUsername, games, betAmount, winning);
+    var payload = createPayload(widget.loggedInUsername, games);
     const String scheme = Settings.scheme;
     const String ip = Settings.ip;
     const int port = Settings.port;

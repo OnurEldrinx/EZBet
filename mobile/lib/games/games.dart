@@ -97,7 +97,6 @@ class GamesPageWidget extends State<GamesPage> {
   static late var gamesStackWidget;
   static late var myCouponWidget;
   static late var savedCouponsWidget;
-  var fetchgames = fetchGames();
 
   static double totalOdd = 0;
 
@@ -109,14 +108,13 @@ class GamesPageWidget extends State<GamesPage> {
     myCouponWidget = MyCouponWidget(
       loggedInUsername: widget.loggedInUsername,
     );
-    savedCouponsWidget =
-        SavedCoupons(loggedInUsername: widget.loggedInUsername);
+    savedCouponsWidget = SavedCoupons();
   }
 
   Widget gamesStack(BuildContext context) {
     return Stack(children: [
       FutureBuilder<List<Game>>(
-        future: fetchgames,
+        future: fetchGames(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -258,7 +256,6 @@ class GamesPageWidget extends State<GamesPage> {
         ),
         backgroundColor: Color.fromRGBO(0, 154, 58, 1),
         appBar: AppBar(
-          automaticallyImplyLeading: false,
           backgroundColor: Color(0xFF191233),
           elevation: 2,
           title: const Text('EZBet'),

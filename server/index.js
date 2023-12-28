@@ -82,7 +82,9 @@ app.post('/api/register', async (req, res) => {
       username,
       password,
     };
+    console.log('New User Data:', newUser);
     const result = await usersCollection.insertOne(newUser);
+    console.log('Insert Result:', result);
     
     res.json(result);
   } catch (error) {
@@ -135,24 +137,6 @@ app.post('/api/savedCoupons', async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: '  Error' });
-  } finally {
-    client && client.close();
-  }
-});
-// retrieve saved coupons from db
-app.get('/api/savedCoupons/:username', async (req, res) => {
-  try {
-    const username = req.params.username;
-    client = await MongoClient.connect(uri);
-    const db = client.db(dbName);
-    const savedCouponsCollection = db.collection('savedCoupons');
-
-    const coupons = await savedCouponsCollection.find({ username: username }).toArray();
-
-    res.status(200).json(coupons);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     client && client.close();
   }
