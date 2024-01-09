@@ -108,7 +108,7 @@ class GamesPageWidget extends State<GamesPage> {
     myCouponWidget = MyCouponWidget(
       loggedInUsername: widget.loggedInUsername,
     );
-    savedCouponsWidget = SavedCoupons();
+    savedCouponsWidget = SavedCoupons(loggedInUsername: widget.loggedInUsername);
   }
 
   Widget gamesStack(BuildContext context) {
