@@ -5,11 +5,11 @@ const axios = require('axios');
 let client;
 const uri = 'mongodb://localhost:27017';
 const apiUrl = 'https://www.nosyapi.com/apiv2/bets/getMatches';
-const params = { t: '2023-11-04',lig:'TR' };
+const params = { t: '2023-11-04', lig: 'TR' };
 const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'API'
-  };
+  'Content-Type': 'application/json',
+  'Authorization': 'API'
+};
 const dbName = 'iddia';
 const app = express();
 const port = 3000;
@@ -40,29 +40,29 @@ app.use(express.json());
 
 
 
-  // retrieve games from database
-  app.get('/api/games', async (req, res) => {
-    try {
-      client = await MongoClient.connect(uri);
-      const db = client.db(dbName);
-      const gamesCollection = db.collection('games');
-  
-      const games = await gamesCollection.find({}).toArray();
-      console.log(games);
-  
-      res.json(games);
-    } catch (error) {
-      console.error('Error:', error);
-      return res.status(500).json({ error: 'Error' });
-    } finally {
-      client.close();
-    }
-  });
-  
+// retrieve games from database
+app.get('/api/games', async (req, res) => {
+  try {
+    client = await MongoClient.connect(uri);
+    const db = client.db(dbName);
+    const gamesCollection = db.collection('games');
+
+    const games = await gamesCollection.find({}).toArray();
+    console.log(games);
+
+    res.json(games);
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ error: 'Error' });
+  } finally {
+    client.close();
+  }
+});
 
 
 
- // root url 
+
+// root url 
 app.get('/', (req, res) => {
   res.send('a');
 });
@@ -73,11 +73,11 @@ app.post('/api/register', async (req, res) => {
   try {
 
     const { username, password } = req.body;
-    
-    client = await MongoClient.connect(uri);    
+
+    client = await MongoClient.connect(uri);
     const db = client.db(dbName);
     const usersCollection = db.collection('users');
-    
+
     const newUser = {
       username,
       password,
@@ -85,7 +85,7 @@ app.post('/api/register', async (req, res) => {
     console.log('New User Data:', newUser);
     const result = await usersCollection.insertOne(newUser);
     console.log('Insert Result:', result);
-    
+
     res.json(result);
   } catch (error) {
     console.log('Error:', error);
@@ -100,13 +100,13 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
-    client = await MongoClient.connect(uri);    
+
+    client = await MongoClient.connect(uri);
     const db = client.db(dbName);
     const usersCollection = db.collection('users');
-    
+
     const user = await usersCollection.findOne({ username, password });
-    
+
     if (user) {
       res.json({ message: 'Login successful' });
     } else {
@@ -125,7 +125,7 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/savedCoupons', async (req, res) => {
   console.log("Reveived data: ", req.body);
   try {
-    const data = req.body; 
+    const data = req.body;
 
     client = await MongoClient.connect(uri);
     const db = client.db(dbName);
@@ -153,6 +153,37 @@ app.get('/api/savedCoupons/:username', async (req, res) => {
     const coupons = await savedCouponsCollection.find({ username: username }).toArray();
 
     res.status(200).json(coupons);
+    console.log(coupons);
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client && client.close();
+  }
+});
+
+
+// Delete a saved coupon
+app.delete('/api/savedCoupons/:couponId', async (req, res) => {
+  try {
+    const couponId = parseInt(req.params.couponId);
+
+
+    client = await MongoClient.connect(uri);
+    const db = client.db(dbName);
+    const savedCouponsCollection = db.collection('savedCoupons');
+
+
+
+    const result = await savedCouponsCollection.deleteOne({ id: couponId });
+    console.log(couponId);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Coupon not found' });
+    }
+
+    res.status(200).json({ message: 'Coupon deleted' });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -163,7 +194,6 @@ app.get('/api/savedCoupons/:username', async (req, res) => {
 
 
 
-    
 
 
 app.listen(port, () => {

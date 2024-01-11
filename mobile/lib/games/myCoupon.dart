@@ -4,6 +4,7 @@ import 'games.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mobile/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCouponWidget extends StatefulWidget {
   final String loggedInUsername;
@@ -199,20 +200,36 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
     );
   }
 
-  Map<String, dynamic> createPayload(
-      String username, List<FootballGameItem> games,int betAmount,double winning) {
+  Future<Map<String, dynamic>> createPayload(String username,
+      List<FootballGameItem> games, int betAmount, double winning) async {
+    int lastId = await getLastSavedId();
+    int newId = lastId + 1;
+    await saveNewId(newId);
+
     List<Map<String, dynamic>> gamesJson =
         games.map((game) => game.toJson()).toList();
     return {
+      'id': newId,
       'username': username,
       'games': gamesJson,
-      'betAmount':betAmount,
-      'winning':winning
+      'betAmount': betAmount,
+      'winning': winning
     };
   }
 
+  Future<int> getLastSavedId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('lastCouponId') ?? 0;
+  }
+
+  Future<void> saveNewId(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastCouponId', id);
+  }
+
   void sendCouponsToBackend(List<FootballGameItem> games) async {
-    var payload = createPayload(widget.loggedInUsername, games,betAmount,winning);
+    var payload =
+        await createPayload(widget.loggedInUsername, games, betAmount, winning);
     const String scheme = Settings.scheme;
     const String ip = Settings.ip;
     const int port = Settings.port;
@@ -231,7 +248,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
       );
 
       if (response.statusCode == 200) {
-        print("data send");
+        print("data sent");
       } else {
         print("error");
       }

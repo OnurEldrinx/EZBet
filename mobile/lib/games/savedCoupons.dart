@@ -36,19 +36,33 @@ class SavedCouponsState extends State<SavedCoupons> {
           var coupon = savedCoupons[index];
           return InkWell(
             onTap: () {
-              _showCouponDetails(context, coupon, myCouponWidgetState.betAmount, myCouponWidgetState.winning);
+              _showCouponDetails(context, coupon, myCouponWidgetState.betAmount,
+                  myCouponWidgetState.winning);
             },
             child: Card(
               margin: EdgeInsets.all(8.0),
               child: Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Coupon ${index + 1}',
                       style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        deleteCoupon(coupon['id']);
+                      },
+                      child: Icon(Icons.delete_sharp, size: 30),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        foregroundColor: Colors.red,
+                        backgroundColor: Colors.white,
+                        alignment: Alignment.center,
+                      ),
                     ),
                   ],
                 ),
@@ -58,6 +72,26 @@ class SavedCouponsState extends State<SavedCoupons> {
         },
       ),
     );
+  }
+
+  Future<void> deleteCoupon(int couponId) async {
+    const String scheme = Settings.scheme;
+    const String ip = Settings.ip;
+    const int port = Settings.port;
+    final url = '$scheme://$ip:$port/api/savedCoupons/$couponId';
+
+    try {
+      final response = await http.delete(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          savedCoupons.removeWhere((coupon) => coupon['id'] == couponId);
+        });
+      } else {
+        print('Response body: ${response.body}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
   }
 
   Widget buildGameList(List<dynamic> games) {
@@ -102,7 +136,6 @@ class SavedCouponsState extends State<SavedCoupons> {
                 'Coupon Details',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-
               SizedBox(height: 10),
               Text('Username: ${coupon['username']}'),
               SizedBox(height: 10),
@@ -125,6 +158,7 @@ class SavedCouponsState extends State<SavedCoupons> {
     const int port = Settings.port;
     final String loggedInUsername = widget.loggedInUsername;
     final url = '$scheme://$ip:$port/api/savedCoupons/$loggedInUsername';
+
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

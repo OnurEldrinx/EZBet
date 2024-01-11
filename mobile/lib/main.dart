@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'games/games.dart';
-import 'user/register.dart';
+import 'user/login.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +20,7 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RegisterPage(),
+      home: LoginPage(),
     );
   }
 }
