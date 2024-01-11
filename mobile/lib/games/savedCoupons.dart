@@ -3,6 +3,11 @@ import 'myCoupon.dart';
 import 'package:mobile/settings.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 
 class SavedCoupons extends StatefulWidget {
   final String loggedInUsername;
@@ -15,6 +20,7 @@ class SavedCoupons extends StatefulWidget {
 
 class SavedCouponsState extends State<SavedCoupons> {
   List<dynamic> savedCoupons = [];
+  ScreenshotController screenshotController = ScreenshotController();
   @override
   void initState() {
     super.initState();
@@ -74,6 +80,20 @@ class SavedCouponsState extends State<SavedCoupons> {
     );
   }
 
+  Future<void> captureAndShare() async {
+    Uint8List? image =
+        await screenshotController.capture(delay: Duration(seconds: 3));
+    if (image != null) {
+      final directory = await getTemporaryDirectory();
+      final imagePath = await File('${directory.path}/Coupon.png').create();
+      await imagePath.writeAsBytes(image);
+
+      final imageFile = XFile(imagePath.path);
+      await Share.shareXFiles([imageFile]);
+      await imagePath.delete();
+    }
+  }
+
   Future<void> deleteCoupon(int couponId) async {
     const String scheme = Settings.scheme;
     const String ip = Settings.ip;
@@ -122,30 +142,41 @@ class SavedCouponsState extends State<SavedCoupons> {
   }
 
   void _showCouponDetails(
-      BuildContext context, var coupon, int betAmount, double winning) {
+      BuildContext context, dynamic coupon, int betAmount, double winning) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.amber,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                'Coupon Details',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text('Username: ${coupon['username']}'),
-              SizedBox(height: 10),
-              Text('Games:'),
-              buildGameList(coupon['games']),
-              SizedBox(height: 10),
-              Text('Bet Amount: ${coupon['betAmount']}'),
-              SizedBox(height: 10),
-              Text('Winning: ${coupon['winning']}'),
-            ],
+        return Screenshot(
+          controller: screenshotController,
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  'Coupon Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  onPressed: () {
+                    captureAndShare();
+                  },
+                  icon: Icon(Icons.share, size: 30),
+                  color: Colors.blue,
+                ),
+                SizedBox(height: 10),
+                Text('Username: ${coupon['username']}'),
+                SizedBox(height: 10),
+                Text('Games:'),
+                buildGameList(coupon['games']),
+                SizedBox(height: 10),
+                Text('Bet Amount: ${coupon['betAmount']}'),
+                SizedBox(height: 10),
+                Text('Winning: ${coupon['winning']}'),
+              ],
+            ),
           ),
         );
       },

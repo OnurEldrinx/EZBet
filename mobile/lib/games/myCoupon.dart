@@ -72,7 +72,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                               style: TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "Arial Black"),
+                                  fontSize: 14),
                             ),
                             SizedBox(width: 5),
                             Text(
@@ -86,7 +86,8 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                               odd,
                               style: TextStyle(
                                   color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
                             ),
                           ]),
                           IconButton(
@@ -95,11 +96,6 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                               alignment: Alignment.center)
                         ],
                       ),
-                      //contentPadding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-                      /*trailing: Column(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                          ],
-                        ),*/
                     ),
                     Divider(height: 1, thickness: 0.25, color: Colors.grey),
                   ],
@@ -134,7 +130,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                       });
                     },
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       Text("Total Odds:"),
@@ -145,10 +141,10 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                     ],
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   Row(
                     children: [
-                      Text("Maximum Return:"),
+                      Text("Max Return:"),
                       Text("${winning.toStringAsFixed(2)}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -157,7 +153,7 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                     ],
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
