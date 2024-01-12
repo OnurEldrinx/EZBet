@@ -91,7 +91,21 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                             ),
                           ]),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                setState(() {
+                                  int? i = FootballGameItemState.lastClickedOddIndexMap[game.matchID.toString()];
+                                  if(i != null){
+                                    game.odds[i]["isClicked"] = false;
+                                    FootballGameItemState.clickedGames.remove(game.matchID);
+                                    clickedGamesList.remove(game);
+                                    FootballGameItemState.clickedOddsMap[game.matchID]?.remove(game.odds[i]['numeric']);
+                                    FootballGameItemState.clickedOddsMap[game.matchID]?.remove(game.odds[i]['type']);
+                                    totalOddUpdated = GamesPageWidget().calculateOdds();
+                                    winning = betAmount * totalOddUpdated;
+                                  }
+
+                                });
+                              },
                               icon: Icon(Icons.delete),
                               alignment: Alignment.center)
                         ],
@@ -264,4 +278,5 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
       winning = betAmount * totalOddUpdated;
     });
   }
+
 }
