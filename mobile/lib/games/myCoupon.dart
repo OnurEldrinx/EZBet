@@ -175,7 +175,33 @@ class MyCouponWidgetState extends State<MyCouponWidget> {
                           width: 60,
                           height: 60,
                           child: OutlinedButton(
-                              onPressed: () {},
+                              onPressed: () {
+
+                                setState(() {
+
+                                  clickedGamesList.forEach((g) {
+
+                                    int? i = FootballGameItemState.lastClickedOddIndexMap[g.matchID.toString()];
+                                    if(i != null){
+                                      g.odds[i]["isClicked"] = false;
+                                    }
+
+                                  });
+
+
+
+                                  FootballGameItemState.clickedGames.clear();
+                                  FootballGameItemState.clickedOddsMap.clear();
+                                  FootballGameItemState.lastClickedOddIndexMap.clear();
+                                  clickedGamesList.clear();
+
+                                  totalOddUpdated = 1.0;
+                                  winning = 0;
+
+
+                                });
+
+                              },
                               child: Icon(Icons.delete_sharp, size: 30),
                               style: OutlinedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
