@@ -145,7 +145,6 @@ class SavedCouponsState extends State<SavedCoupons> {
       BuildContext context, dynamic coupon, int betAmount, double winning) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.amber,
       builder: (BuildContext context) {
         return Screenshot(
           controller: screenshotController,

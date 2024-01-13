@@ -53,16 +53,30 @@ class FootballGameItemState extends State<FootballGameItem> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${widget.leagueName}',
+                Flexible(
+                  flex: 2,
+                  child: Text(
+                    '${widget.leagueName}',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18)),
-                Text('${widget.gameTime}',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Text(
+                    '${widget.gameTime}',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15)),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             Container(
@@ -100,7 +114,9 @@ class FootballGameItemState extends State<FootballGameItem> {
                                     clickedOddsMap[matchId] = [];
                                   }
 
-                                  int? lastClickedIndex = lastClickedOddIndexMap[matchId.toString()];
+                                  int? lastClickedIndex =
+                                      lastClickedOddIndexMap[
+                                          matchId.toString()];
 
                                   if (lastClickedIndex != null &&
                                       lastClickedIndex != index) {
@@ -114,7 +130,9 @@ class FootballGameItemState extends State<FootballGameItem> {
                                         widget.odds[lastClickedIndex]['type']);
                                   }
 
-                                  bool isClicked = !(widget.odds[index]['isClicked'] ?? false);
+                                  bool isClicked = !(widget.odds[index]
+                                          ['isClicked'] ??
+                                      false);
                                   widget.odds[index]['isClicked'] = isClicked;
 
                                   lastClickedOddIndexMap[matchId.toString()] =

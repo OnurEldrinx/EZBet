@@ -48,7 +48,7 @@ app.get('/api/games', async (req, res) => {
     const gamesCollection = db.collection('games');
 
     const games = await gamesCollection.find({}).toArray();
-    console.log(games);
+   // console.log(games);
 
     res.json(games);
   } catch (error) {
