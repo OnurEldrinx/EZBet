@@ -124,7 +124,7 @@ class GamesPageWidget extends State<GamesPage> {
   late List<Widget> _widgetOptions;
   final TextEditingController _totalOddController = TextEditingController();
   final TextEditingController _numberOfGamesController =
-      TextEditingController();
+  TextEditingController();
 
   @override
   void initState() {
@@ -163,72 +163,74 @@ class GamesPageWidget extends State<GamesPage> {
         future: FetchGames,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            List<Map<String, dynamic>> filteredGames = snapshot.data!
-                .where((game) => selectedLeagues[game.league] ?? false)
-                .map((game) => {
-                      'matchId': game.matchId,
-                      'leagueName': game.league,
-                      'gameTime': game.time,
-                      'team1': game.team1,
-                      'team2': game.team2,
-                      'odds': [
-                        {
-                          'numeric': game.ms1.toString(),
-                          'type': 'MS 1',
-                          'isClicked': false
-                        },
-                        {
-                          'numeric': game.ms0.toString(),
-                          'type': 'MS 0',
-                          'isClicked': false
-                        },
-                        {
-                          'numeric': game.ms2.toString(),
-                          'type': 'MS 2',
-                          'isClicked': false
-                        },
-                        {
-                          'numeric': game.alt25.toString(),
-                          'type': 'Alt 2.5',
-                          'isClicked': false
-                        },
-                        {
-                          'numeric': game.ust25.toString(),
-                          'type': 'Üst 2.5',
-                          'isClicked': false
-                        },
-                      ],
-                    })
-                .toList();
-
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
             return Column(
               children: [
                 Expanded(
                   child: ListView.builder(
                     padding: EdgeInsetsDirectional.symmetric(
-                        horizontal: 5, vertical: 5),
-                    itemCount: filteredGames.length,
+                      horizontal: 5,
+                      vertical: 5,
+                    ),
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (BuildContext context, int index) {
-                      var game = filteredGames[index];
+                      footballGames.add({
+                        'matchId': snapshot.data![index].matchId,
+                        'leagueName': snapshot.data![index].league,
+                        'gameTime': snapshot.data![index].time,
+                        'team1': snapshot.data![index].team1,
+                        'team2': snapshot.data![index].team2,
+                        'odds': <Map<String, Object>>[
+                          {
+                            'numeric': snapshot.data![index].ms1.toString(),
+                            'type': 'MS 1',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].ms0.toString(),
+                            'type': 'MS 0',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].ms2.toString(),
+                            'type': 'MS 2',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].alt25.toString(),
+                            'type': 'Alt 2.5',
+                            'isClicked': false
+                          },
+                          {
+                            'numeric': snapshot.data![index].ust25.toString(),
+                            'type': 'Üst 2.5',
+                            'isClicked': false
+                          },
+                        ],
+                      });
+
                       return FootballGameItem(
-                        matchID: game['matchId'],
-                        leagueName: game['leagueName'],
-                        gameTime: game['gameTime'],
-                        team1: game['team1'],
-                        team2: game['team2'],
-                        odds: List<Map<String, Object>>.from(game['odds']),
+                        matchID: footballGames[index]['matchId'],
+                        leagueName: footballGames[index]['leagueName'],
+                        gameTime: footballGames[index]['gameTime'],
+                        team1: footballGames[index]['team1'],
+                        team2: footballGames[index]['team2'],
+                        odds: List<Map<String, Object>>.from(
+                          footballGames[index]['odds'],
+                        ),
                       );
                     },
                   ),
                 ),
               ],
             );
-          } else {
-            return Center(child: Text('No games available.'));
           }
         },
       ),
@@ -250,7 +252,6 @@ class GamesPageWidget extends State<GamesPage> {
     print(' Result: $totalOdd');
     return totalOdd;
   }
-
   //Bottom Nav Bar Implementation Start
 /*   int _selectedIndex = 0;
   static const TextStyle optionStyle =
@@ -265,8 +266,9 @@ class GamesPageWidget extends State<GamesPage> {
       _selectedIndex = index;
     });
   }
- */
+*/
   //Bottom Nav Bar Implementation End
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,12 +304,6 @@ class GamesPageWidget extends State<GamesPage> {
           elevation: 2,
           title: const Text('EZBet'),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.filter_alt_outlined),
-              onPressed: () {
-                showFilterDialog();
-              },
-            ),
             SizedBox(width: 150),
             IconButton(
               icon: Icon(Icons.shuffle),
@@ -320,30 +316,58 @@ class GamesPageWidget extends State<GamesPage> {
         body: _widgetOptions.elementAt(_selectedIndex));
   }
 
+  List<String> oddTypes = <String>['Over 2.5', 'Under 2.5', 'Result',"Any"];
+  List<String> moreLess = <String>['More Than', 'Less Than',"Equal"];
+
+
   void showShuffleDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Random Coupon Generator'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                controller: _totalOddController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Total Odd',
+          content: SingleChildScrollView(scrollDirection: Axis.vertical,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Odd Type"),
+                    SizedBox(width: 15),
+                    FilterDropdownMenu(filterList: oddTypes,selectedValue: selectedOddTypeFilter)
+                  ],
                 ),
-              ),
-              TextField(
-                controller: _numberOfGamesController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Number of Games',
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Total Odd"),
+                      SizedBox(width: 15),
+                      FilterDropdownMenu(filterList: moreLess,selectedValue: selectedTotalOddFilter),
+                      SizedBox(width: 15),
+                      Container(
+                        width: 50,
+                        child: TextField(
+                          controller: _totalOddController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                TextField(
+                  controller: _numberOfGamesController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Number of Games',
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -365,68 +389,178 @@ class GamesPageWidget extends State<GamesPage> {
     );
   }
 
-  void showFilterDialog() {
-    showDialog(
+  static late String selectedOddTypeFilter = "Over 2.5";
+  static late String selectedTotalOddFilter = "More Than";
+
+  void showSelectedGames(BuildContext context, List<Game> selectedGames,
+      List<double> selectedOddsList) {
+    showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text('Filter by League'),
-              content: Container(
-                width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: uniqueLeagueNames.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    String leagueName = uniqueLeagueNames[index];
-                    selectedLeagues[leagueName] ??= true;
-
-                    return CheckboxListTile(
-                      title: Text(leagueName),
-                      value: selectedLeagues[leagueName],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          selectedLeagues[leagueName] = value!;
-                        });
-                      },
+        return Container(
+          child: Wrap(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: selectedGames.asMap().entries.map((entry) {
+                    int i = entry.key;
+                    Game game = entry.value;
+                    double odds = selectedOddsList[i];
+                    return ListTile(
+                      title: Text('${game.team1} vs ${game.team2}'),
+                      subtitle:
+                      Text('Selected Odd: ${selectedOddTypeFilter} ${odds.toStringAsFixed(2)}'),
                     );
-                  },
+                  }).toList(),
                 ),
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Clear All'),
-                  onPressed: () {
-                    setState(() {
-                      selectedLeagues.updateAll((key, value) => false);
-                    });
-                  },
-                ),
-                TextButton(
-                  child: Text('Apply'),
-                  onPressed: () {
-                    setState(() {
-                      gamesStackWidget = gamesStack(context);
-
-                      selectedLeagues.forEach((league, isSelected) {
-                        if (isSelected) {
-                          print('$league: $isSelected');
-                        }
-                      });
-                      Navigator.of(context).pop();
-                    });
-                  },
-                ),
-              ],
-            );
-          },
+            ],
+          ),
         );
       },
     );
   }
 
   Future<void> randomCouponGenerator() async {
+    int numberOfGames = int.tryParse(_numberOfGamesController.text) ?? 0;
+    double targetOdds = double.tryParse(_totalOddController.text) ?? 0;
+    Random random = Random();
+
+    List<Game> availableGames = await fetchGames(selectedLeagues);
+    availableGames = availableGames
+        .where((game) => selectedLeagues[game.league] ?? false)
+        .toList();
+
+    bool foundCombination = false;
+    List<Game> selectedGames = [];
+    List<double> selectedOddsList = [];
+    double currentOdds = 1.0;
+
+    for (int attempt = 0; attempt < 100000; attempt++) {
+      selectedGames.clear();
+      selectedOddsList.clear();
+      currentOdds = 1.0;
+      Set<int> usedIndices = {};
+
+      while (selectedGames.length < numberOfGames &&
+          usedIndices.length < availableGames.length) {
+        int index = random.nextInt(availableGames.length);
+        if (!usedIndices.contains(index)) {
+          Game game = availableGames[index];
+          List<double> oddsOptions = [
+            game.ms1,
+            game.ms0,
+            game.ms2,
+            game.alt25,
+            game.ust25
+          ];
+
+          late double selectedOdds = oddsOptions[random.nextInt(oddsOptions.length)];
+
+
+          switch(selectedOddTypeFilter){
+            case "Over 2.5":
+              selectedOdds = oddsOptions[4];
+              break;
+            case "Under 2.5":
+              selectedOdds = oddsOptions[3];
+              break;
+            case "Result":
+              selectedOdds = oddsOptions[random.nextInt(3)];
+              break;
+            case "Any":
+              selectedOdds = oddsOptions[random.nextInt(oddsOptions.length)];
+              break;
+          }
+          selectedGames.add(game);
+          selectedOddsList.add(selectedOdds);
+          currentOdds *= selectedOdds;
+          usedIndices.add(index);
+        }
+      }
+
+      double roundedCurrentOdds = double.parse(currentOdds.toStringAsFixed(2));
+
+
+
+      if (roundedCurrentOdds == targetOdds && GamesPageWidget.selectedTotalOddFilter == "Equal") {
+        foundCombination = true;
+        break;
+      }else if(roundedCurrentOdds <= targetOdds && GamesPageWidget.selectedTotalOddFilter == "Less Than"){
+        foundCombination = true;
+        break;
+      }else if(roundedCurrentOdds >= targetOdds && GamesPageWidget.selectedTotalOddFilter == "More Than"){
+        foundCombination = true;
+        break;
+      }
+
+
+    }
+
+    print(selectedOddTypeFilter);
+    print(selectedTotalOddFilter);
+
+    if (!foundCombination) {
+      print('No match');
+    } else {
+      for (int i = 0; i < selectedGames.length; i++) {
+        print(
+            'Game: ${selectedGames[i].team1} vs ${selectedGames[i].team2}, Selected Odds: ${selectedOddsList[i]}');
+      }
+      showSelectedGames(context, selectedGames, selectedOddsList);
+      print('Final Odds: ${currentOdds.toStringAsFixed(2)}');
+    }
+  }
+}
+
+class FilterDropdownMenu extends StatefulWidget {
+  FilterDropdownMenu({super.key, required this.filterList, required this.selectedValue});
+  final List<String> filterList;
+  late String selectedValue;
+
+  @override
+  State<FilterDropdownMenu> createState() => _FilterDropdownMenuState();
+}
+
+class _FilterDropdownMenuState extends State<FilterDropdownMenu> {
+  late String dropdownValue;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    dropdownValue = widget.filterList.first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownMenu<String>(
+      initialSelection: widget.filterList.contains("More Than") ? GamesPageWidget.selectedTotalOddFilter:GamesPageWidget.selectedOddTypeFilter,
+      onSelected: (String? value) {
+        // This is called when the user selects an item.
+        setState(() {
+          dropdownValue = value!;
+          widget.selectedValue = dropdownValue;
+          if(widget.filterList.contains("More Than")){
+            GamesPageWidget.selectedTotalOddFilter = dropdownValue;
+          }else{
+            GamesPageWidget.selectedOddTypeFilter = dropdownValue;
+          }
+        });
+      },
+      dropdownMenuEntries: widget.filterList.map<DropdownMenuEntry<String>>((String value) {
+        return DropdownMenuEntry<String>(value: value, label: value);
+      }).toList(),
+    );
+  }
+}
+
+
+
+
+
+/*Future<void> randomCouponGenerator() async {
     int numberOfGames = int.tryParse(_numberOfGamesController.text) ?? 0;
     double targetOdds = double.tryParse(_totalOddController.text) ?? 0;
     Random random = Random();
@@ -482,6 +616,39 @@ class GamesPageWidget extends State<GamesPage> {
             'Game: ${selectedGames[i].team1} vs ${selectedGames[i].team2}, Selected Odds: ${selectedOddsList[i]}');
       }
       print('Final Odds: ${currentOdds.toStringAsFixed(2)}');
+
+      showSelectedGames(context, selectedGames, selectedOddsList);
+
     }
   }
-}
+
+  void showSelectedGames(BuildContext context, List<Game> selectedGames,
+      List<double> selectedOddsList) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Wrap(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: selectedGames.asMap().entries.map((entry) {
+                    int i = entry.key;
+                    Game game = entry.value;
+                    double odds = selectedOddsList[i];
+                    return ListTile(
+                      title: Text('${game.team1} vs ${game.team2}'),
+                      subtitle:
+                      Text('Selected Odd: ${odds.toStringAsFixed(2)}'),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }*/
+
